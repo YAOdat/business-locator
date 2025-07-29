@@ -1,103 +1,187 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import { MapComponent } from '../components/MapComponent';
+import { BusinessSelector } from '../components/BusinessSelector';
+import { AnalysisResults } from '../components/AnalysisResults';
+import { OptimalLocationAnalysis } from '../components/OptimalLocationAnalysis';
+import { useMapStore } from '../store/mapStore';
+import { analyzeLocation } from '../services/analysisService';
+import { Location } from '../types/business';
+import { MagnifyingGlassIcon, MapPinIcon, ArrowTrendingUpIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [activeTab, setActiveTab] = useState<'basic' | 'optimal'>('basic');
+  
+  const { 
+    selectedLocation, 
+    selectedBusiness, 
+    selectedRadius, 
+    analysisResult, 
+    isLoading,
+    setSelectedLocation, 
+    setAnalysisResult, 
+    setLoading 
+  } = useMapStore();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleLocationSelect = (location: Location) => {
+    setSelectedLocation(location);
+  };
+
+  const handleAnalyze = async () => {
+    if (!selectedLocation || !selectedBusiness) {
+      alert('Please select both a location and business type');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await analyzeLocation(selectedLocation, selectedBusiness, selectedRadius);
+      setAnalysisResult(result);
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      alert('Analysis failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const canAnalyze = selectedLocation && selectedBusiness && !isLoading;
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <div className="flex items-center">
+              <MapPinIcon className="h-8 w-8 text-blue-600 mr-3" />
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Business Locator</h1>
+                <p className="text-sm text-gray-600">Find the perfect location for your business</p>
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </header>
+
+      {/* Tab Navigation */}
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex space-x-8">
+            <button
+              onClick={() => setActiveTab('basic')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'basic'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <ChartBarIcon className="h-5 w-5 inline mr-2" />
+              Basic Analysis
+            </button>
+            <button
+              onClick={() => setActiveTab('optimal')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'optimal'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <ArrowTrendingUpIcon className="h-5 w-5 inline mr-2" />
+              Optimal Location Finder
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {activeTab === 'basic' ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Map and Controls */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Map */}
+              <div className="bg-white rounded-lg shadow-lg p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Select Location</h2>
+                <p className="text-sm text-gray-600 mb-4">
+                  Click on the map to select your desired business location
+                </p>
+                <MapComponent onLocationSelect={handleLocationSelect} />
+                
+                {selectedLocation && (
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-800">
+                      <strong>Selected:</strong> {selectedLocation.lat.toFixed(6)}, {selectedLocation.lng.toFixed(6)}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Business Selection */}
+              <div className="bg-white rounded-lg shadow-lg p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Business Configuration</h2>
+                <BusinessSelector />
+              </div>
+
+              {/* Analyze Button */}
+              <div className="bg-white rounded-lg shadow-lg p-6">
+                <button
+                  onClick={handleAnalyze}
+                  disabled={!canAnalyze}
+                  className={`w-full py-3 px-4 rounded-lg font-medium text-white flex items-center justify-center ${
+                    canAnalyze
+                      ? 'bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+                      : 'bg-gray-300 cursor-not-allowed'
+                  }`}
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <MagnifyingGlassIcon className="h-5 w-5 mr-2" />
+                      Analyze Location
+                    </>
+                  )}
+                </button>
+                
+                {!selectedLocation && (
+                  <p className="text-sm text-gray-500 mt-2 text-center">
+                    Select a location on the map first
+                  </p>
+                )}
+                
+                {!selectedBusiness && selectedLocation && (
+                  <p className="text-sm text-gray-500 mt-2 text-center">
+                    Choose a business type to continue
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Right Column - Results */}
+            <div className="lg:col-span-1">
+              {analysisResult ? (
+                <AnalysisResults />
+              ) : (
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                  <div className="text-center text-gray-500">
+                    <MapPinIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Ready to Analyze</h3>
+                    <p className="text-sm text-gray-600">
+                      Select a location and business type, then click "Analyze Location" to see your success probability.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <OptimalLocationAnalysis />
+        )}
+      </div>
     </div>
   );
 }
