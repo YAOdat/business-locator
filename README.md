@@ -66,7 +66,7 @@ Success Probability = (Competition Score × 0.5) + (Demographic Score × 0.3) + 
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/YAOdat/business-locator.git
    cd business-locator
    ```
 
@@ -117,19 +117,33 @@ src/
 ├── app/                    # Next.js app directory
 │   ├── page.tsx           # Main application page
 │   ├── layout.tsx         # Root layout
-│   └── globals.css        # Global styles
+│   ├── globals.css        # Global styles
+│   └── api/               # API routes
+│       └── places/        # Google Places API integration
+│           └── route.ts   # Places API endpoint
 ├── components/            # React components
 │   ├── MapComponent.tsx   # Google Maps integration
-│   ├── BusinessSelector.tsx # Business type selection
-│   └── AnalysisResults.tsx # Results display
-├── services/              # API services
-│   └── analysisService.ts # Analysis logic
+│   ├── OptimalMapComponent.tsx # Enhanced map for location selection
+│   ├── OptimalLocationsMap.tsx # Results map with heatmap
+│   ├── OptimalLocationAnalysis.tsx # Main analysis component
+│   ├── OptimalLocationsList.tsx # Results list display
+│   ├── OptimalBusinessSelector.tsx # Business type selection
+│   ├── BusinessSelector.tsx # Legacy business selector
+│   ├── AnalysisResults.tsx # Analysis results display
+│   ├── LocationFeedback.tsx # User feedback component
+│   ├── MapInstructions.tsx # Map usage instructions
+│   └── LoadingSpinner.tsx # Loading indicator
+├── services/              # Business logic services
+│   ├── competitorDetectionService.ts # Enhanced competitor detection
+│   ├── optimalLocationService.ts # Optimal location analysis
+│   ├── optimizedLocationService.ts # Legacy location service
+│   └── analysisService.ts # Basic analysis logic
 ├── store/                 # State management
-│   └── mapStore.ts        # Zustand store
+│   └── mapStore.ts        # Zustand store for map state
 ├── types/                 # TypeScript types
 │   └── business.ts        # Business interfaces
 └── data/                  # Static data
-    └── businessCategories.ts # Business categories
+    └── businessCategories.ts # Business categories and configurations
 ```
 
 ## 🎯 Future Enhancements
@@ -162,12 +176,6 @@ If you encounter any issues or have questions, please:
 2. Create a new issue with detailed information
 3. Contact the development team
 
-## 🙏 Acknowledgments
-
-- Google Maps Platform for mapping and location services
-- Next.js team for the amazing framework
-- Tailwind CSS for the utility-first styling
-- All contributors and beta testers
 
 ---
 
